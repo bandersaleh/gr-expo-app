@@ -53,20 +53,6 @@ function FinanceTabs() {
         headerShown: false,
       }}
     >
-      {/* <Tab.Screen
-        name="Finance"
-        component={FinanceScreen}
-        options={{
-          tabBarLabel: 'FINANCIAL SUMMARY',
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? 'cart' : 'cart-outline'}
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      /> */}
       <Tab.Screen name="FINANCIAL SUMMARY" component={FinanceScreen} />
       <Tab.Screen name="2025 INVOICE TRACKING" component={FinanceScreenTracking} />
       <Tab.Screen name="CONTRACTS" component={FinanceScreenContracts} />
@@ -82,20 +68,6 @@ function ProgressTabs() {
         headerShown: false,
       }}
     >
-      {/* <Tab.Screen
-        name="Progress"
-        component={ProgressScreen}
-        options={{
-          tabBarLabel: 'CONSTRUCTION',
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? 'cart' : 'cart-outline'}
-              size={size}
-              color={color}
-            />
-          ),
-        }}
-      /> */}
       <Tab.Screen name="CONSTRUCTION" component={ProgressScreen} />
       <Tab.Screen name="LOAD" component={ProgressLoadScreen} />
       <Tab.Screen name="DESIGN" component={ProgressDesignScreen} />
@@ -116,8 +88,11 @@ export default function App() {
           drawerIcon: ({ focused, size, color }) => {
             let iconName = 'menu';
             switch (route.name) {
+              case 'Home':
+              iconName = focused ? 'home' : 'home-outline';
+              break;
               case 'DashboardTabs':
-                iconName = focused ? 'home' : 'grid-outline';
+                iconName = focused ? 'home' : 'home-outline';
                 break;
               case 'ProcurementTabs':
                 iconName = focused ? 'grid' : 'grid-outline';
