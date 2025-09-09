@@ -5,6 +5,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { View, Image, StyleSheet } from 'react-native';
+import { DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 
 // screen components
 import HomeScreen from './screens/HomeScreen';
@@ -24,11 +26,9 @@ import ProgressLoadScreen from './screens/ProgressLoadScreen';
 import ProgressDesignScreen from './screens/ProgressDesignScreen';
 import ProgressZonesScreen from './screens/ProgressZonesScreen';
 
-
 // Create Navigators
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
-
 
 // Procurement Tabs (Bottom Tab Navigator for Procurement only)
 function ProcurementTabs() {
@@ -54,7 +54,7 @@ function FinanceTabs() {
       }}
     >
       <Tab.Screen name="FINANCIAL SUMMARY" component={FinanceScreen} />
-      <Tab.Screen name="2025 INVOICE TRACKING" component={FinanceScreenTracking} />
+      <Tab.Screen name="INVOICE TRACKING" component={FinanceScreenTracking} />
       <Tab.Screen name="CONTRACTS" component={FinanceScreenContracts} />
     </Tab.Navigator>
   );
@@ -66,8 +66,7 @@ function ProgressTabs() {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-      }}
-    >
+      }}>
       <Tab.Screen name="CONSTRUCTION" component={ProgressScreen} />
       <Tab.Screen name="LOAD" component={ProgressLoadScreen} />
       <Tab.Screen name="DESIGN" component={ProgressDesignScreen} />
@@ -77,13 +76,37 @@ function ProgressTabs() {
     </Tab.Navigator>
   );
 }
-
+const CustomDrawerContent = (props) => {
+  return (
+    <DrawerContentScrollView {...props}>
+      <View style={styles.drawerHeader}>
+        <Image
+          source={require('./images/fab-logo.png')} // ✅ Your image path
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
+      <DrawerItemList {...props} />
+    </DrawerContentScrollView>
+  );
+};
+const styles = StyleSheet.create({
+  drawerHeader: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  logo: {
+    width: 160,
+    height: 80,
+  },
+});
 
 // Main App Component
 export default function App() {
   return (
     <NavigationContainer>
       <Drawer.Navigator
+        drawerContent={(props) => <CustomDrawerContent {...props} />}
         screenOptions={({ route }) => ({
           drawerIcon: ({ focused, size, color }) => {
             let iconName = 'menu';
@@ -121,7 +144,6 @@ export default function App() {
               default:
                 iconName = 'menu';
             }
-
             return <Ionicons name={iconName} size={size} color={color} />;
           },
         })}
