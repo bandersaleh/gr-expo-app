@@ -12,7 +12,6 @@ export default function ProcurementScreenSummary() {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

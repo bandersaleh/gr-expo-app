@@ -1,70 +1,76 @@
-import React, { useEffect, useState } from 'react';
+// ./screens/DashboardScreen.js
+import React, { useState, useContext, useEffect } from 'react';
 import { StyleSheet, View, ActivityIndicator, Text } from 'react-native';
 import { WebView } from 'react-native-webview';
-import * as ScreenOrientation from 'expo-screen-orientation';
+import { UrlContext } from '../context/UrlContext';
 
-const INITIAL_URL = 'https://dbo.riyadhgreen.sa/views/HOME/PROGRAMOVERVIEW?%3Atoolbar=0&%3Alinktarget=_self&%3Aembed=yes#2';
+const DBO_URL =
+  'https://dbo.riyadhgreen.sa/views/HOME/PROGRAMOVERVIEW?%3Atoolbar=0&%3Alinktarget=_self&%3Aembed=yes';
 
 export default function DashboardScreen() {
-  const [orientationReady, setOrientationReady] = useState(false);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const { setCurrentUrl } = useContext(UrlContext);
 
+  // Set the URL on mount
   useEffect(() => {
-    const lockOrientation = async () => {
-      try {
-        console.log('Locking initial orientation to portrait...');
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-        console.log('Orientation locked to portrait');
-        setOrientationReady(true);
-      } catch (err) {
-        console.error('Failed to lock orientation:', err);
-        setError(err.message || 'Unknown error');
-      }
-    };
-
-    lockOrientation();
-
-    // Safety timeout: if orientation doesn't lock within 5 seconds, proceed anyway
-    const timeout = setTimeout(() => {
-      if (!orientationReady) {
-        console.warn('Timeout reached, proceeding without orientation lock');
-        setOrientationReady(true);
-      }
-    }, 5000);
-
-    return () => clearTimeout(timeout);
+    setCurrentUrl(DBO_URL);
   }, []);
-
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <Text style={{ color: 'red', fontWeight: 'bold' }}>Error locking orientation:</Text>
-        <Text>{error}</Text>
-      </View>
-    );
-  }
-
-  if (!orientationReady) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0000ff" />
-        <Text>Setting up orientation...</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
-      <WebView
-        source={{ uri: INITIAL_URL }}
-        startInLoadingState={true}
-        style={styles.webview}
-      />
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+        </View>
+      )}
+      {error ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Failed to load dashboard.</Text>
+        </View>
+      ) : (
+        <WebView
+          source={{ uri: DBO_URL }}
+          style={styles.webview}
+          onLoadStart={(navState) => {
+            if (navState?.nativeEvent?.url) {
+              setCurrentUrl(navState.nativeEvent.url);
+            }
+          }}
+          onLoadEnd={() => setLoading(false)}
+          onError={() => {
+            setLoading(false);
+            setError(true);
+          }}
+          startInLoadingState={true}
+        />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  webview: { flex: 1 },
+  container: {
+    flex: 1,
+  },
+  webview: {
+    flex: 1,
+  },
+  loadingContainer: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0, bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    zIndex: 10,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+  },
 });
