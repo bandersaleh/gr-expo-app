@@ -40,7 +40,6 @@ function ProcurementTabs() {
     >
       <Tab.Screen name="PROCUREMENT OVERVIEW" component={ProcurementScreen} />
       <Tab.Screen name="PROCUREMENT SUMMARY" component={ProcurementScreenSummary} />
-      {/* Add more procurement-related tabs here if needed */}
     </Tab.Navigator>
   );
 }
@@ -55,7 +54,7 @@ function FinanceTabs() {
     >
       <Tab.Screen name="FINANCIAL SUMMARY" component={FinanceScreen} />
       <Tab.Screen name="INVOICE TRACKING" component={FinanceScreenTracking} />
-      <Tab.Screen name="CONTRACTS" component={FinanceScreenContracts} />
+      {/* <Tab.Screen name="CONTRACTS" component={FinanceScreenContracts} /> */}
     </Tab.Navigator>
   );
 }
@@ -70,8 +69,8 @@ function ProgressTabs() {
       <Tab.Screen name="CONSTRUCTION" component={ProgressScreen} />
       <Tab.Screen name="LOAD" component={ProgressLoadScreen} />
       <Tab.Screen name="DESIGN" component={ProgressDesignScreen} />
-      <Tab.Screen name="ZONES" component={ProgressZonesScreen} />
-      <Tab.Screen name="SPI" component={SpiScreen} />
+      {/* <Tab.Screen name="ZONES" component={ProgressZonesScreen} />
+      <Tab.Screen name="SPI" component={SpiScreen} /> */}
       {/* Add more procurement-related tabs here if needed */}
     </Tab.Navigator>
   );
