@@ -3,7 +3,7 @@
     "name": "gr-expo-app",
     "slug": "gr-expo-app",
     "version": "1.0.0",
-    "orientation": "default", 
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
@@ -26,7 +26,8 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-font"
     ]
   }
 }
