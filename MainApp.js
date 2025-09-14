@@ -1,4 +1,3 @@
-// MainApp.js
 import React, { useContext, useEffect, useState } from 'react';
 import {
   View,
@@ -39,7 +38,6 @@ import OutstandingScreen from './screens/OutstandingScreen';
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
-// Tab navigators
 function ProcurementTabs() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
@@ -94,7 +92,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   swipeHintTextContainer: {
-    height: 60,
+    height: 100,
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 10,
@@ -106,6 +104,12 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '-90deg' }],
     width: 200,
     textAlign: 'center',
+    marginBottom: 10,
+  },
+  swipeHintImage: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
   },
   iconScrollView: {
     flex: 1,
@@ -138,7 +142,7 @@ const getScreenOptions = (shouldShowIcons, shouldShowHeader) => ({ route }) => (
   headerLeft: () => null,
   gestureEnabled: true,
   swipeEnabled: true,
-  swipeEdgeWidth: SCREEN_WIDTH, // allow swipe from anywhere
+  swipeEdgeWidth: SCREEN_WIDTH,
   drawerIcon: ({ focused, size, color }) => {
     if (!shouldShowIcons) return null;
 
@@ -177,7 +181,6 @@ const getScreenOptions = (shouldShowIcons, shouldShowHeader) => ({ route }) => (
 });
 
 const SwipeIconBar = ({ onPressIcon }) => {
-  // list of screen names and matching icon names
   const iconList = [
     { screen: 'Home', iconName: 'home-outline' },
     { screen: 'Procurement', iconName: 'grid-outline' },
@@ -215,7 +218,6 @@ export default function MainApp() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [navigationRef, setNavigationRef] = useState(null);
 
-  // Orientation lock same as before
   useEffect(() => {
     if (!isReady || !currentUrl) return;
     const normalizedUrl = currentUrl.toLowerCase().replace(/\/$/, '');
@@ -261,15 +263,19 @@ export default function MainApp() {
         </Drawer.Navigator>
       </NavigationContainer>
 
-      {/* Only show when drawer is closed AND URL starts with dbo */}
       {!isDrawerOpen && shouldShowHeader && navigationRef && (
         <View style={styles.swipeHintContainer}>
           <TouchableOpacity
-            onPress={() => navigationRef.dispatch({ type: 'OPEN_DRAWER' })}
-            style={styles.swipeHintTextContainer}
-          >
-            <Text style={styles.swipeHintText}>swipe-&gt;</Text>
-          </TouchableOpacity>
+          onPress={() => navigationRef.dispatch({ type: 'OPEN_DRAWER' })}
+          style={styles.swipeHintTextContainer}
+        >
+          <Image
+            source={require('./images/square-GR-Icon.png')}
+            style={styles.swipeHintImage}
+          />
+          <Text style={styles.swipeHintText}>(swipe)</Text>
+        </TouchableOpacity>
+
 
           <ScrollView
             style={styles.iconScrollView}
