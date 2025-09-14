@@ -180,20 +180,25 @@ export default function MainApp() {
     <View style={{ flex: 1 }}>
       <NavigationContainer>
         <Drawer.Navigator
-          drawerContent={(props) => <CustomDrawerContent {...props} />}
-          screenOptions={getScreenOptions(shouldShowIcons, shouldShowHeader)}
-        >
-          <Drawer.Screen name="Login" component={LoginScreen}/>
-          <Drawer.Screen name="Home" component={DashboardScreen} />
-          <Drawer.Screen name="Procurement" component={ProcurementTabs} />
-          <Drawer.Screen name="Progress" component={ProgressTabs} />
-          <Drawer.Screen name="Finance" component={FinanceTabs} />
-          <Drawer.Screen name="Contracts" component={ContractScreen} />
-          <Drawer.Screen name="SPI" component={SpiScreen} />
-          <Drawer.Screen name="Components" component={ComponentsScreen} />
-          <Drawer.Screen name="Outstanding" component={OutstandingScreen} />
-          {/* <Drawer.Screen name="Test" component={TestOrientation} /> */}
-        </Drawer.Navigator>
+  drawerContent={(props) => <CustomDrawerContent {...props} />}
+  screenOptions={getScreenOptions(shouldShowIcons, shouldShowHeader)}
+>
+  {/* Conditionally show Login screen */}
+  {!lowerUrl.startsWith('https://dbo') && (
+    <Drawer.Screen name="Login" component={LoginScreen} />
+  )}
+
+  {/* App content screens */}
+  <Drawer.Screen name="Home" component={DashboardScreen} />
+  <Drawer.Screen name="Procurement" component={ProcurementTabs} />
+  <Drawer.Screen name="Progress" component={ProgressTabs} />
+  <Drawer.Screen name="Finance" component={FinanceTabs} />
+  <Drawer.Screen name="Contracts" component={ContractScreen} />
+  <Drawer.Screen name="SPI" component={SpiScreen} />
+  <Drawer.Screen name="Components" component={ComponentsScreen} />
+  <Drawer.Screen name="Outstanding" component={OutstandingScreen} />
+</Drawer.Navigator>
+
       </NavigationContainer>
     </View>
   );
