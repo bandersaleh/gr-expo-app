@@ -1,6 +1,14 @@
 // MainApp.js
-import React, { useContext, useEffect } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+  ScrollView,
+} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import {
   createDrawerNavigator,
@@ -27,13 +35,11 @@ import SpiScreen from './screens/SpiScreen';
 import ContractScreen from './screens/ContractScreen';
 import ComponentsScreen from './screens/ComponentsScreen';
 import OutstandingScreen from './screens/OutstandingScreen';
-import TestOrientation from './screens/TestOrientation';
 
-// Navigation setup
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
-// 🔹 Tab Navigators
+// Tab navigators
 function ProcurementTabs() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
@@ -62,7 +68,8 @@ function ProgressTabs() {
   );
 }
 
-// 🔹 Styles
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
   drawerHeader: {
     height: 120,
@@ -74,9 +81,45 @@ const styles = StyleSheet.create({
     width: 150,
     height: 80,
   },
+  swipeHintContainer: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 60,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    zIndex: 9999,
+    elevation: 9999,
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+  swipeHintTextContainer: {
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  swipeHintText: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '600',
+    transform: [{ rotate: '-90deg' }],
+    width: 200,
+    textAlign: 'center',
+  },
+  iconScrollView: {
+    flex: 1,
+  },
+  iconBar: {
+    paddingTop: 10,
+    alignItems: 'center',
+  },
+  iconButton: {
+    padding: 8,
+    marginVertical: 6,
+  },
 });
 
-// 🔹 Drawer content
 const CustomDrawerContent = (props) => (
   <DrawerContentScrollView {...props}>
     <View style={styles.drawerHeader}>
@@ -90,9 +133,12 @@ const CustomDrawerContent = (props) => (
   </DrawerContentScrollView>
 );
 
-// 🔹 Dynamic screen options
 const getScreenOptions = (shouldShowIcons, shouldShowHeader) => ({ route }) => ({
   headerShown: shouldShowHeader,
+  headerLeft: () => null,
+  gestureEnabled: true,
+  swipeEnabled: true,
+  swipeEdgeWidth: SCREEN_WIDTH, // allow swipe from anywhere
   drawerIcon: ({ focused, size, color }) => {
     if (!shouldShowIcons) return null;
 
@@ -122,9 +168,6 @@ const getScreenOptions = (shouldShowIcons, shouldShowHeader) => ({ route }) => (
       case 'Outstanding':
         iconName = focused ? 'alert-circle' : 'alert-circle-outline';
         break;
-      // case 'Test':
-      //   iconName = focused ? 'alert-circle' : 'alert-circle-outline';
-      //   break;
       default:
         iconName = 'menu';
     }
@@ -133,73 +176,114 @@ const getScreenOptions = (shouldShowIcons, shouldShowHeader) => ({ route }) => (
   },
 });
 
+const SwipeIconBar = ({ onPressIcon }) => {
+  // list of screen names and matching icon names
+  const iconList = [
+    { screen: 'Home', iconName: 'home-outline' },
+    { screen: 'Procurement', iconName: 'grid-outline' },
+    { screen: 'Progress', iconName: 'trending-up-outline' },
+    { screen: 'Finance', iconName: 'cash-outline' },
+    { screen: 'Contracts', iconName: 'document-text-outline' },
+    { screen: 'SPI', iconName: 'stats-chart-outline' },
+    { screen: 'Components', iconName: 'layers-outline' },
+    { screen: 'Outstanding', iconName: 'alert-circle-outline' },
+  ];
+
+  return (
+    <View style={styles.iconBar}>
+      {iconList.map((it) => (
+        <TouchableOpacity
+          key={it.screen}
+          style={styles.iconButton}
+          onPress={() => {
+            onPressIcon(it.screen);
+          }}
+        >
+          <Ionicons name={it.iconName} size={24} color="#000" />
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+};
+
 export default function MainApp() {
   const { currentUrl, isReady } = useContext(UrlContext);
-
   const lowerUrl = currentUrl?.toLowerCase() ?? '';
   const shouldShowIcons = isReady && lowerUrl.startsWith('https://dbo');
   const shouldShowHeader = lowerUrl.startsWith('https://dbo');
 
-  // ✅ Orientation lock (cleaned version)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [navigationRef, setNavigationRef] = useState(null);
+
+  // Orientation lock same as before
   useEffect(() => {
-  console.log('useEffect triggered with:', { currentUrl, isReady });
-
-  if (!isReady || !currentUrl) return;
-
-  const normalizedUrl = currentUrl.toLowerCase().replace(/\/$/, '');
-  console.log('Normalized URL:', normalizedUrl);
-
-  const lockOrientation = async () => {
-    try {
-      if (normalizedUrl.startsWith('https://dbo')) {
-        console.log('Locking orientation to LANDSCAPE');
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_LEFT);
-        console.log('Orientation locked to LANDSCAPE');
-      } else if (normalizedUrl.startsWith('https://sso')) {
-        console.log('Locking orientation to PORTRAIT');
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-        console.log('Orientation locked to PORTRAIT');
+    if (!isReady || !currentUrl) return;
+    const normalizedUrl = currentUrl.toLowerCase().replace(/\/$/, '');
+    const lockOrientation = async () => {
+      try {
+        if (normalizedUrl.startsWith('https://dbo')) {
+          await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_LEFT);
+        } else {
+          await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+        }
+      } catch (e) {
+        console.warn('Error locking orientation:', e);
       }
-    } catch (e) {
-      console.warn('Error locking orientation:', e);
-    }
-  };
-
-  const timeoutId = setTimeout(() => {
-    lockOrientation();
-  }, 500);
-
-  return () => clearTimeout(timeoutId);
-
-}, [currentUrl, isReady]);
-
-
-
+    };
+    const timeoutId = setTimeout(() => {
+      lockOrientation();
+    }, 500);
+    return () => clearTimeout(timeoutId);
+  }, [currentUrl, isReady]);
 
   return (
     <View style={{ flex: 1 }}>
-      <NavigationContainer>
+      <NavigationContainer
+        ref={(ref) => setNavigationRef(ref)}
+        onStateChange={(state) => {
+          const drawerIsOpen = state.history?.some((entry) => entry.type === 'drawer');
+          setIsDrawerOpen(drawerIsOpen);
+        }}
+      >
         <Drawer.Navigator
-  drawerContent={(props) => <CustomDrawerContent {...props} />}
-  screenOptions={getScreenOptions(shouldShowIcons, shouldShowHeader)}
->
-  {/* Conditionally show Login screen */}
-  {!lowerUrl.startsWith('https://dbo') && (
-    <Drawer.Screen name="Login" component={LoginScreen} />
-  )}
-
-  {/* App content screens */}
-  <Drawer.Screen name="Home" component={DashboardScreen} />
-  <Drawer.Screen name="Procurement" component={ProcurementTabs} />
-  <Drawer.Screen name="Progress" component={ProgressTabs} />
-  <Drawer.Screen name="Finance" component={FinanceTabs} />
-  <Drawer.Screen name="Contracts" component={ContractScreen} />
-  <Drawer.Screen name="SPI" component={SpiScreen} />
-  <Drawer.Screen name="Components" component={ComponentsScreen} />
-  <Drawer.Screen name="Outstanding" component={OutstandingScreen} />
-</Drawer.Navigator>
-
+          drawerContent={(props) => <CustomDrawerContent {...props} />}
+          screenOptions={getScreenOptions(shouldShowIcons, shouldShowHeader)}
+        >
+          {!lowerUrl.startsWith('https://dbo') && <Drawer.Screen name="Login" component={LoginScreen} />}
+          <Drawer.Screen name="Home" component={DashboardScreen} />
+          <Drawer.Screen name="Procurement" component={ProcurementTabs} />
+          <Drawer.Screen name="Progress" component={ProgressTabs} />
+          <Drawer.Screen name="Finance" component={FinanceTabs} />
+          <Drawer.Screen name="Contracts" component={ContractScreen} />
+          <Drawer.Screen name="SPI" component={SpiScreen} />
+          <Drawer.Screen name="Components" component={ComponentsScreen} />
+          <Drawer.Screen name="Outstanding" component={OutstandingScreen} />
+        </Drawer.Navigator>
       </NavigationContainer>
+
+      {/* Only show when drawer is closed AND URL starts with dbo */}
+      {!isDrawerOpen && shouldShowHeader && navigationRef && (
+        <View style={styles.swipeHintContainer}>
+          <TouchableOpacity
+            onPress={() => navigationRef.dispatch({ type: 'OPEN_DRAWER' })}
+            style={styles.swipeHintTextContainer}
+          >
+            <Text style={styles.swipeHintText}>swipe-&gt;</Text>
+          </TouchableOpacity>
+
+          <ScrollView
+            style={styles.iconScrollView}
+            contentContainerStyle={styles.iconBar}
+            showsVerticalScrollIndicator={false}
+          >
+            <SwipeIconBar
+              onPressIcon={(screenName) => {
+                navigationRef.navigate(screenName);
+              }}
+            />
+          </ScrollView>
+        </View>
+      )}
     </View>
   );
 }
