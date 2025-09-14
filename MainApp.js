@@ -15,6 +15,7 @@ import { UrlContext } from './context/UrlContext';
 
 // Screens
 import DashboardScreen from './screens/DashboardScreen';
+import LoginScreen from './screens/LoginScreen';
 import ProcurementScreen from './screens/ProcurementScreen';
 import ProcurementScreenSummary from './screens/ProcurementScreenSummary';
 import FinanceScreen from './screens/FinanceScreen';
@@ -182,6 +183,7 @@ export default function MainApp() {
           drawerContent={(props) => <CustomDrawerContent {...props} />}
           screenOptions={getScreenOptions(shouldShowIcons, shouldShowHeader)}
         >
+          <Drawer.Screen name="Login" component={LoginScreen}/>
           <Drawer.Screen name="Home" component={DashboardScreen} />
           <Drawer.Screen name="Procurement" component={ProcurementTabs} />
           <Drawer.Screen name="Progress" component={ProgressTabs} />
